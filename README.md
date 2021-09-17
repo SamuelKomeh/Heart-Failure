@@ -9,17 +9,3 @@ In addition to utilising these methods to diagnose cardiovascular disease, we wi
 
 Dataset
 The cardiovascular disease dataset is an open-source dataset produced by Svetlana Ulianova in canada and uploaded on Kaggle in the year 2018. The data set consists of 70,000 patient records (34,979 with cardiovascular disease and 35,021 without) and includes 11 characteristics (4 demographic, 4 examination, and 3 social history and also our target variable which is cardio.
-
-The age (age) of the patient which is demographic ( int)(days)
-Weight (weight) of the patient which is demographic (float) (kg)
-Height (height) of the patient which is demographic (int)(cm)
-The gender (gender) of the person which is demographic (categorical code)(Binary) which is 1 or 2, where 1 is women and 2 is men
-Systolic blood pressure (api_hi) is the highest level of blood pressure, mainly the medical examination (int)
-Diastolic blood pressure (api_lo) is the lowest level of blood pressure mainly the medical examination (int)
-Cholesterol (cholesterol) is a kind of fat mainly the medical examination where 1: normal, 2: above normal, 3: well above normal, which is a categorical code (int)
-Glucose (gluc) is a kind of sugamainly ther mainly the medical examination where 1: normal, 2: above normal, 3: well above normal, which is a categorical code (int)
-Smoking (smoke) which is the smoking history of the patient (binary)
-Alcohol (alco) intake which is the alcohol intake of the patient which is the social history (binary)
-Physical activity (active) which is the activity of the patient. It describes whether the patient is or active or not, It also refers to the social history of the patients. (Binary)
-Cardio which is the presence or absence of the diseases (Binary)
-Some features are numerical, while others are assigned categorical codes, and others have binary values. Although the classes are balanced, more female patients were seen than male patients. Furthermore, the continuous-valued features are almost normally distributed; nevertheless, the some of the categorical values are skewed, when will address all in our analysis

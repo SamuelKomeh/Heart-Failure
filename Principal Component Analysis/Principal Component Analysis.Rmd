@@ -1,0 +1,192 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+###Loading the libraries
+```{r}
+library(dlookr)
+library(ggplot2)
+library(dplyr)
+library(devtools)
+library(ggthemes)
+library(neuralnet)
+```
+
+
+```{r}
+HeartFailure<-read.csv("data/cardio1.csv")
+```
+
+###Checking the structure of the datasets
+```{r}
+str(HeartFailure)
+
+summary(HeartFailure)
+```
+
+###Checking and removing of NAs
+```{r}
+HeartFailure <- na.omit(HeartFailure)
+
+summary(HeartFailure)
+
+str(HeartFailure)
+```
+
+
+#### Selection of of a subset of Rows and Columns for PCA computation
+
+```{r}
+HeartFailure1 = select(HeartFailure,age,gender,height,weight,ap_hi,ap_lo,cholesterol,gluc,smoke,alco,active,cardio,bmi)
+summary(HeartFailure1)
+
+```
+
+### Checking for correlation
+```{r}
+cor(HeartFailure1)
+```
+
+####Only 1000 records will subsetted for our PCA Analysis only. This is due to R low processing power
+```{r}
+HeartFailure2 <-HeartFailure1[1:1000,]
+
+HeartFailure2 <- na.omit(HeartFailure2)
+
+summary(HeartFailure2)
+```
+
+```{r}
+# generate a boxplot graph including horizontal background dashed lines
+#   note: this can be done by
+#     1. plotting an empty graph, i.e. with white boxes
+#     2. adding the background dashed lines
+#     3. plotting the coloured boxplot with the option add = T
+opar <- par()
+boxplot(
+  HeartFailure2,
+  border = 'white',
+  yaxt = 'n'
+)
+abline(h = seq(0,100,10), lty = 'dashed', lwd = 2, col = 'darkgrey')
+boxplot(
+  HeartFailure2,
+  border = 'blue',
+  yaxt = 'n',
+  add = T
+)
+axis(2, seq(0,100,10))
+par(opar)
+```
+
+####  Principal Component Analysis
+
+```{r}
+# perform PCA on the NYC_Crime_Housing_clean.cont dataset
+HeartFailure2_PCA <- prcomp(HeartFailure2, center = T, scale. = T)
+
+# inspect the attributes of the PCA object returned by prcomp
+attributes(HeartFailure2_PCA)
+```
+
+
+#### Visual analysis of PCA results
+```{r}
+# calculate the proportion of explained variance (PEV) from the std values
+pc_HeartFailure2_var <- HeartFailure2_PCA$sdev^2
+pc_HeartFailure2_var
+pc_HeartFailure2_PEV<- pc_HeartFailure2_var/ sum(pc_HeartFailure2_var)
+pc_HeartFailure2_PEV
+
+# plot the variance per PC
+plot(HeartFailure2_PCA)
+
+# plot the cumulative value of PEV for increasing number of additional PCs
+#   note: add an 80% threshold line to inform the feature extraction
+#     according to the plot the first 3 PCs should be selected
+opar <- par()
+plot(
+  cumsum(pc_HeartFailure2_PEV),
+  ylim = c(0,1),
+  xlab = 'PC',
+  ylab = 'cumulative PEV',
+  pch = 20,
+  col = 'orange'
+)
+abline(h = 0.8, col = 'red', lty = 'dashed')
+par(opar)
+
+# get and inspect the loadings for each PC
+#   note: loadings are reported as a rotation matrix (see lecture)
+pc_HeartFailure2_PCA_loadings <- HeartFailure2_PCA$rotation
+pc_HeartFailure2_PCA_loadings
+
+# plot the loadings for the first three PCs as a barplot
+#   note: two vectors for colours and labels are created for convenience
+#     for details on the other parameters see the help for barplot and legend
+opar <- par()
+colvector = c('red', 'orange', 'yellow', 'green', 'cyan', 'blue')
+labvector = c('PC1', 'PC2', 'PC3')
+barplot(
+  pc_HeartFailure2_PCA_loadings[,c(1:3)],
+  beside = T,
+  yaxt = 'n',
+  names.arg = labvector,
+  col = colvector,
+  ylim = c(-1,1),
+  border = 'white',
+  ylab = 'loadings'
+)
+axis(2, seq(-1,1,0.1))
+legend(
+  'bottomright',
+  bty = 'n',
+  col = colvector,
+  pch = 15,
+  row.names(pc_HeartFailure2_PCA_loadings)
+)
+par(opar)
+```
+
+
+
+```{r}
+# generate a biplot for each pair of important PCs (and show them on the same page)
+#   note: the option choices is used to select the PCs - default is 1:2
+opar = par()
+par(mfrow = c(2,2))
+biplot(
+  HeartFailure2_PCA,
+  scale = 0,
+  col = c('grey40','orange')
+)
+biplot(
+  HeartFailure2_PCA,
+  choices = c(1,3),
+  scale = 0,
+  col = c('grey40','orange')
+)
+biplot(
+HeartFailure2_PCA,
+  choices = c(2,3),
+  scale = 0,
+  col = c('grey40','orange')
+)
+par(opar)
+
+# the space of the first three PCs is better explored interactively...
+#   ...using a function from the pca3d package
+# first install pca3d
+if(require(pca3d) == FALSE){
+    install.packages('pca3d')
+}
+# then plot and explore the data by rotating/zoom with the mouse
+pca3d::pca3d(HeartFailure2_PCA, show.labels = T)
+
+# and save a snapshot of the view in png format
+pca3d::snapshotPCA3d('HeartFailure2_PCA_3D.png')
+
+```
+
+
